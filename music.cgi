@@ -10,6 +10,29 @@ form = cgi.FieldStorage()
 # url for rss feed
 # itunes.apple.com/rss
 
+# variable declaration
+# from form
+country = "us"
+amount_num = 10
+display_top = "topmusicvideos"
+content = ""
+link = ""
+conn = ""
+# from content
+albumName = ""
+albumInfo = ""
+trackNum = 0
+imageLink = ""
+songName = ""
+albumName = ""
+artistName = ""
+audioLink = ""
+albumInfo = ""
+youtubeSearch = ""
+videoLink = ""
+videoInfo = ""
+
+
 # for country 
 if 'country_dropdown' in form:
    country = form['country_dropdown'].value
@@ -28,34 +51,49 @@ if 'bonus_dropdown' in form:
 else:
    display_top = "topmusicvideos"
 
+# function to open link
+def openURL(country, display, amount):
+   link = "https://itunes.apple.com/%s/rss/%s/limit=%s/explicit=True/xml" % (country, display, amount)
+   conn = u.urlopen(link)
+   return conn
+
 # error checking for connection
 try:
    link = "https://itunes.apple.com/%s/rss/%s/limit=%s/explicit=True/xml" % (country, display_top, amount_num)
    conn = u.urlopen(link)
+   content = openURL(country, display_top, amount_num)
 except:
    print("Content-type: text/html\n")
    print("Oh noes! URL error!")
 
-content = conn.read().decode("UTF-8")
-content = content.replace("\u2019", "")
-content = content.replace("\u2018", "")
-content = content.encode("UTF-8")
+# function to decode and encode content
+def fixContent(oldContent):
+   oldContent = oldContent.read().decode("UTF-8")
+   oldContent = oldContent.replace("\u2019", "")
+   oldContent = oldContent.replace("\u2018", "")
+   oldContent = oldContent.encode("UTF-8")
+   return oldContent
 
-root = ET.XML(content)
+fixedContent = fixContent(content)
+
+root = ET.XML(fixedContent)
 
 # tell the web how to interpret data
 print("Content-type: text/html\n")
 
-albumName = ""
-albumInfo = ""
+# function that works
+# first = "first cat name"
+# second = "second cat name"
+# name1 = "Sass"
+# name2 = "Flea"
+# def cats(first, second):
+#    print(first, second)
+# cats(name1, name2)
 
 # the 'back' button
 html_back = """
-<a class="link1" href="http://www.bryceogden.com/music.html"><p 
-style="font-family:Verdana; 
-font-size:8pt">Back</p></a>
-<title>iTunes Application</title>
 <!DOCTYPE html>
+<title>iTunes Application</title>
 <STYLE type="text/css">
    BODY {
       background: #000000 url("mic3.jpeg");
@@ -85,13 +123,15 @@ font-size:8pt">Back</p></a>
       font-style: italic;
 }
 </STYLE>
+<a class="link1" href="http://www.bryceogden.com/music.html"><span 
+style="font-family:Verdana; 
+font-size:8pt">Back</span></a>
 <!-- Image source/credit: 
 http://static.zoovy.com/img/2bhip/-/T/a14_00_sesame_s$
 <!-- Image source/credit: http://onholdad.com/top.ht1.jpg -->
-<!-- Image source/credit: http://images.alphacoders.com/341/341.jpg -->"""
+<!-- Image source/credit: http://images.alphacoders.com/341/341.jpg -->
+<body>"""
 print(html_back)
-
-trackNum = 0
 
 # if they search 'topsongs'
 if display_top == "topsongs":
